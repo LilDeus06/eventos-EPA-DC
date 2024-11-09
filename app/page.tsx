@@ -352,10 +352,10 @@
             `}
           >
             <div className="flex flex-col sm:flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2 mb-4 sm:mb-0">
+              <CardTitle className="flex items-center space-y-2 space-x-2 mb-4 sm:mb-0">
               Reservación de Reuniones SAFCO
               </CardTitle>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-5 space-x-0">
                 <Login onLoginSuccess={() => setIsLoggedIn(true)} />
                 <Button 
                   onClick={toggleModoOscuro} 
@@ -370,12 +370,13 @@
                   {modoOscuro ? <Sun className="mr-2" /> : <Moon className="mr-2" />}
                   {modoOscuro ? 'Modo Claro' : 'Modo Oscuro'}
                 </Button>
+                
                 <Dialog>
                 <DialogTrigger asChild>
                   <Button
-                        className="bg-red-600 hover:bg-red-700 ml-2 w-full sm:w-auto"
+                        className="bg-red-600 hover:bg-red-700 ml-2 w-full sm:w-auto "
                   >
-                        <Plus className="mr-2 h-4 w-4" />
+                        <Plus className="mr-2 h-4 w-4 " />
                         {modoEdicion ? 'Actualizar' : 'Nuevo'}
                   </Button>
                     </DialogTrigger>
@@ -462,9 +463,11 @@
             className={`
               ${modoOscuro ? 'bg-gray-800' : 'bg-white'}
             `}
-          >
+          > 
             <div className="overflow-x-auto pt-8">
-              <b><p className='pb-5 text-transform: uppercase'>{format(semanaActual, 'MMMM yyyy', { locale: es })}</p></b>
+              <b className={`
+              ${modoOscuro ? 'text-white' : 'text-black'}
+            `}><p className='pb-5 text-transform: uppercase'>{format(semanaActual, 'MMMM yyyy', { locale: es })}</p></b>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3">
                 {diasSemana.map((dia, index) => (
