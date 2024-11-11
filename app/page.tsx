@@ -5,6 +5,7 @@
   import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
   import { Input } from "@/components/ui/input";
   import { Label } from "@/components/ui/label";
+  import Swal from 'sweetalert2';
 
   import {
     Select,
@@ -75,18 +76,30 @@
       return () => unsubscribe();
     }, [auth]);
 
+
+  
     const handleLogin = async (e: React.FormEvent) => {
       e.preventDefault();
       const auth = getAuth();
       try {
         await signInWithEmailAndPassword(auth, email, password);
         onLoginSuccess();
-        alert('Inicio de sesión exitoso');
+        Swal.fire({
+          title: "Inicio de sesion Exitoso",
+          text: "Acepta para continuar",
+          icon: "success",
+
+        });
         setIsDialogOpen(false);
       } catch (error) {
         console.error("Error al iniciar sesión:", error);
         setError("Error Desconocido al iniciar sesión: ");
-        alert('Error al iniciar sesión');
+        Swal.fire({
+          title: "Error",
+          text: "Error al iniciar sesión",
+          icon: "error",
+        })
+        
       }
     };
 
@@ -201,7 +214,13 @@
           });
     
           if (hayConflicto) {
-            alert('Las horas seleccionadas se cruzan con otra reservación existente.');
+            Swal.fire({
+              position: 'top',
+              icon: "error",
+              title: "Las horas seleccionadas se cruzan con otra reservación existente.",
+              showConfirmButton: false,
+              timer: 1700
+            });
             return;
           }
         }
@@ -212,9 +231,16 @@
           const fechaFinExistente = new Date(reservacion.fechaFin);
           return (nuevaFechaInicio < fechaFinExistente && nuevaFechaFin > fechaInicioExistente);
         });
-    
+        
         if (hayConflicto) {
-          alert('Las horas seleccionadas se cruzan con otra reservación existente.');
+          Swal.fire({
+            position: 'top',
+            icon: "error",
+            title: "Las horas seleccionadas se cruzan con otra reservación existente.",
+            showConfirmButton: false,
+            timer: 1700
+          });
+          setIsLoading(false);
           return;
         }
       }
@@ -223,15 +249,32 @@
         const colorAleatorio = obtenerColorAleatorio(); // Obtener color aleatorio
         if (modoEdicion && reservacionSeleccionada) {
           await updateDoc(doc(db, 'reservaciones', reservacionSeleccionada.id), { ...formData, color: colorAleatorio });
-          alert('Reservación actualizada exitosamente');
+          Swal.fire({
+            title: "Reservación Actualizada Exitosamente!",
+            text: "Acepta para continuar",
+            icon: "success",
+
+          });
         } else {
           await addDoc(collection(db, 'reservaciones'), { ...formData, color: colorAleatorio });
-          alert('Reservación creada exitosamente');
+          Swal.fire({
+            title: "Reservación creada Exitosamente!",
+            text: "Acepta para continuar",
+            icon: "success",
+
+          });
         }
         await cargarReservaciones();
         limpiarFormulario();
+        setIsNewEventOpen(false);
       } catch (error) {
-        alert('Error al guardar la reservación');
+        Swal.fire({
+          position: 'top',
+          icon: "error",
+          title: "Error al guardar la reservación",
+          showConfirmButton: false,
+          timer: 1700
+        })
         console.error(error);
       
       } finally {
@@ -241,12 +284,22 @@
 
     const eliminarReservacion = async (id: string) => {
       if (!isLoggedIn) {
-        alert("Debes iniciar sesión para eliminar una reservación.");
+        Swal.fire({
+          position: 'center',
+          icon: "info",
+          title: "Debes iniciar sesión para eliminar una reservación.",
+          showConfirmButton: false,
+          timer: 1700
+        });
         return;
       }
       await deleteDoc(doc(db, 'reservaciones', id));
       await cargarReservaciones();
-      alert('Reservación eliminada exitosamente');
+      Swal.fire({
+        title: "Reservación Eliminada Exitosamente!",
+        text: "Acepta para continuar",
+        icon: "success",
+      })
     };
 
     const limpiarFormulario = () => {
@@ -325,6 +378,10 @@
       document.title = "Reservación de Reuniones SAFCO"; // Cambiar el título de la página
     }, []);
 
+
+    // Agrega un estado para controlar la apertura del diálogo
+    const [isNewEventOpen, setIsNewEventOpen] = useState(false);
+
     return (
       
 
@@ -352,7 +409,7 @@
             `}
           >
             <div className="flex flex-col sm:flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-y-2 space-x-2 mb-4 sm:mb-0">
+              <CardTitle className="flex items-center space-y-2 space-x-2 mb-4 sm:mb-0 text-3xl">
               Reservación de Reuniones SAFCO
               </CardTitle>
               <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-5 space-x-0">
@@ -371,7 +428,7 @@
                   {modoOscuro ? 'Modo Claro' : 'Modo Oscuro'}
                 </Button>
                 
-                <Dialog>
+                <Dialog open={isNewEventOpen} onOpenChange={setIsNewEventOpen}>
                 <DialogTrigger asChild>
                   <Button
                         className="bg-red-600 hover:bg-red-700 ml-2 w-full sm:w-auto "
